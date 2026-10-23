@@ -68,6 +68,6 @@ generated `composer.json` (no leaked keys, no plugin reference), that the bundle
 ran, `composer validate --strict`, `dump-autoload --strict-psr`, `php -l`, and runs `composer qa`.
 
 CI runs it with every feature on PHP 8.2 (Symfony 7.4) and 8.5 (Symfony 8.x). The plugin is
-checked out from `BUNDLE_MAKER_REPOSITORY`@`BUNDLE_MAKER_REF` (workflow_dispatch inputs or
+checked out from `PLUGIN_REPOSITORY`@`PLUGIN_REF` (workflow_dispatch inputs or
 repository variables, default `<owner>/symfony-bundle-maker`@`main`). The plugin's own CI covers
 the other configurations (formats, lowest dependencies).

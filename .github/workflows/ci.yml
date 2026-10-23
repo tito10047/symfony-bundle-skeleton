@@ -27,9 +27,9 @@ concurrency:
 
 env:
   # The plugin under test. Override it with the workflow_dispatch inputs or the
-  # BUNDLE_MAKER_REPOSITORY / BUNDLE_MAKER_REF repository variables.
-  BUNDLE_MAKER_REPOSITORY: ${{ inputs.bundle-maker-repository || vars.BUNDLE_MAKER_REPOSITORY || format('{0}/symfony-bundle-maker', github.repository_owner) }}
-  BUNDLE_MAKER_REF: ${{ inputs.bundle-maker-ref || vars.BUNDLE_MAKER_REF || 'main' }}
+  # PLUGIN_REPOSITORY / PLUGIN_REF repository variables.
+  PLUGIN_REPOSITORY: ${{ inputs.bundle-maker-repository || vars.PLUGIN_REPOSITORY || format('{0}/symfony-bundle-maker', github.repository_owner) }}
+  PLUGIN_REF: ${{ inputs.bundle-maker-ref || vars.PLUGIN_REF || 'main' }}
 
 jobs:
   lint:
@@ -76,8 +76,8 @@ jobs:
       - name: Checkout the plugin
         uses: actions/checkout@v7
         with:
-          repository: ${{ env.BUNDLE_MAKER_REPOSITORY }}
-          ref: ${{ env.BUNDLE_MAKER_REF }}
+          repository: ${{ env.PLUGIN_REPOSITORY }}
+          ref: ${{ env.PLUGIN_REF }}
           path: bundle-maker
           persist-credentials: false
 
