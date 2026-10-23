@@ -1,3 +1,4 @@
 # Files of this repository only, not part of the skeleton.
 /.gitattributes export-ignore
 /.github/ export-ignore
+/CLAUDE.md export-ignore
