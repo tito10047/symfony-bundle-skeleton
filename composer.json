@@ -1,20 +1,23 @@
 {
     "name": "tito10047/symfony-bundle-skeleton",
-    "type": "symfony-bundle",
+    "description": "Skeleton to create Symfony bundles that follow the best practices, with an interactive assistant",
     "license": "MIT",
-    "description": "A minimal Symfony bundle skeleton recommended to create new bundles",
-    "minimum-stability": "stable",
+    "type": "symfony-bundle",
+    "keywords": [
+        "symfony",
+        "symfony-bundle",
+        "bundle",
+        "skeleton"
+    ],
     "require": {
-        "php": ">=8.1",
-        "symfony/framework-bundle": "^6.4|^7.0"
-    },
-    "require-dev": {
-        "yceruto/bundle-flex": "^0.1"
+        "php": ">=8.2",
+        "symfony/http-kernel": "^7.4.17 || ^8.1.5",
+        "tito10047/symfony-bundle-maker": "^1.0"
     },
     "config": {
-        "sort-packages": true,
         "allow-plugins": {
-            "yceruto/bundle-flex": true
-        }
+            "tito10047/symfony-bundle-maker": true
+        },
+        "sort-packages": true
     }
 }
