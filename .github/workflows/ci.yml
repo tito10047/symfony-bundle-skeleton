@@ -1,0 +1,113 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  # weekly, to catch changes of the plugin and new releases of the dependencies
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+    inputs:
+      bundle-maker-repository:
+        description: GitHub repository of the tito10047/symfony-bundle-maker plugin to test with (owner/name)
+        required: false
+        type: string
+      bundle-maker-ref:
+        description: Branch, tag or commit of the plugin
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # The plugin under test. Override it with the workflow_dispatch inputs or the
+  # BUNDLE_MAKER_REPOSITORY / BUNDLE_MAKER_REF repository variables.
+  BUNDLE_MAKER_REPOSITORY: ${{ inputs.bundle-maker-repository || vars.BUNDLE_MAKER_REPOSITORY || format('{0}/symfony-bundle-maker', github.repository_owner) }}
+  BUNDLE_MAKER_REF: ${{ inputs.bundle-maker-ref || vars.BUNDLE_MAKER_REF || 'main' }}
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          coverage: none
+          tools: composer:v2
+
+      - name: Validate composer.json
+        run: composer validate --strict
+
+      - name: Lint the GitHub Actions workflows
+        run: docker run --rm -v "$PWD:/repo" -w /repo rhysd/actionlint:1.7.12 -color
+
+  # "composer create-project" from this checkout, with every feature, then the "qa" script of the
+  # bundle as created (the end-to-end script of the plugin, which also checks the dist archive)
+  e2e:
+    name: E2E, all features, PHP ${{ matrix.php }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        # the lowest and the highest supported PHP versions
+        php: ['8.2', '8.5']
+    steps:
+      - name: Checkout the skeleton
+        uses: actions/checkout@v7
+        with:
+          path: bundle-skeleton
+          persist-credentials: false
+
+      - name: Checkout the plugin
+        uses: actions/checkout@v7
+        with:
+          repository: ${{ env.BUNDLE_MAKER_REPOSITORY }}
+          ref: ${{ env.BUNDLE_MAKER_REF }}
+          path: bundle-maker
+          persist-credentials: false
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+          tools: composer:v2
+          ini-values: zend.assertions=1
+
+      - name: Locate the Composer cache
+        id: composer-cache
+        run: |
+          echo "dir=$(composer config --global cache-files-dir)" >> "$GITHUB_OUTPUT"
+          echo "week=$(date -u +%G-%V)" >> "$GITHUB_OUTPUT"
+
+      # the downloaded packages only, never vendor/; renewed every week
+      - name: Cache the downloaded packages
+        uses: actions/cache@v6
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: e2e-composer-${{ runner.os }}-php${{ matrix.php }}-${{ steps.composer-cache.outputs.week }}
+          restore-keys: e2e-composer-${{ runner.os }}-php${{ matrix.php }}-
+
+      - name: Create and check a bundle
+        env:
+          E2E_SKELETON_DIR: bundle-skeleton
+          BUNDLE_MAKER_NAME: acme/blog-bundle
+          BUNDLE_MAKER_AUTHOR_NAME: Jane Doe
+          BUNDLE_MAKER_AUTHOR_EMAIL: jane@example.com
+          BUNDLE_MAKER_ALL: '1'
+        run: bundle-maker/tests/e2e/run.sh "$RUNNER_TEMP/blog-bundle"
