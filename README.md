@@ -6,13 +6,18 @@ configuring the bundle to suit your initial needs while ensuring compliance with
 ## Installation
 
 ```bash
-composer create-project yceruto/bundle-skeleton <your-bundle-name>
+composer create-project tito10047/symfony-bundle-skeleton <your-bundle-name>
 ```
 
 During the bundle installation process, you will be prompted to provide details about the features you wish to activate. 
 Once this information is submitted, the assistant will handle the remaining setup for you.
 
 Visit https://github.com/yceruto/bundle-flex for more details.
+
+## Credits
+
+Based on [yceruto/bundle-skeleton](https://github.com/yceruto/bundle-skeleton) and
+[yceruto/bundle-flex](https://github.com/yceruto/bundle-flex) by [Yonel Ceruto](https://github.com/yceruto).
 
 ## License
 
